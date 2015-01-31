@@ -5,6 +5,8 @@ Entanglement
 
 What if an atom could take its values from another atom?
 
+<img src="https://raw.githubusercontent.com/Frozenlock/entanglement/master/quantum-entanglement1.png"
+	alt="Entanglement"/>
 
 Same data, different representation.
 
