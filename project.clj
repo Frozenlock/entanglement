@@ -1,6 +1,6 @@
-(defproject org.clojars.frozenlock/entanglement "0.0.1"
+(defproject org.clojars.frozenlock/entanglement "0.0.2"
   :description "Spooky action at a distance (between atoms)"
-  :url ""
+  :url "https://github.com/Frozenlock/entanglement"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.7.0-alpha4"]

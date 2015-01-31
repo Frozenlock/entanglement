@@ -1,6 +1,7 @@
 (ns entanglement.core)
 
-(deftype Entangled [source-atom meta validator watches getter setter]
+(deftype Entangled [source-atom meta validator watches
+                    getter setter derefer]
   Object
   (equiv [this other]
     (-equiv this other))
@@ -12,7 +13,9 @@
 
   IDeref
   (-deref [this]
-    (getter (-deref source-atom)))
+    (let [derefer (or derefer (fn [_ a g]
+                                (g (-deref a))))]
+      (derefer this source-atom getter)))
 
   IMeta
   (-meta [_] meta)
@@ -82,9 +85,11 @@
   "Return an atom which applies custom getter and setter to the
   source-atom for every lookup/update/watches.
   
-  getter:  (fn [derefed-source-atom] ...)
-  setter:  (fn [derefed-source-atom new-value]...)
+  getter:              (fn [derefed-source-atom] ...)
+  setter [optional]:   (fn [derefed-source-atom new-value]...)
 
+  derefer [optional]:  (fn [this(new-atom) source-atom getter] ....)
+  
   When creating delicate entanglement (when the datastructure between
   the source atom and the new atom are quite different), it is
   suggested to provide a validator function.
@@ -96,9 +101,9 @@
   setter argument. Any attempt to modify directly the returned atom
   will result in an error."
   ([source-atom getter] (entangle source-atom getter nil))
-  ([source-atom getter setter & {:keys [meta validator]}]
+  ([source-atom getter setter & {:keys [meta validator derefer]}]
    (assert (satisfies? IAtom source-atom) "Only atoms can be entangled.")
-   (Entangled. source-atom meta validator nil getter setter)))
+   (Entangled. source-atom meta validator nil getter setter derefer)))
 
 
 ;;; Simple cursor implementation using entanglement

@@ -12,7 +12,7 @@ Same data, different representation.
 
 
 ```clj
- ;; Those two atoms **ARE THE SAME**
+ ;; Those two atoms **SHARE THE SAME DATA**
  atom-a
  #<Atom: {:first-name Mike, :last-name Moran, :age 22, :sex M}>
 
@@ -37,7 +37,7 @@ your program.
 Usage
 -----
 
-Add `[org.clojars.frozenlock/entanglement "0.0.1"]` to `:dependencies` in `project.clj`.
+Add [![Clojars Project](http://clojars.org/org.clojars.frozenlock/entanglement/latest-version.svg)](http://clojars.org/org.clojars.frozenlock/entanglement) to your `:dependencies` in `project.clj`.
 
 In your namespace declaration: `(:require [entanglement.core :refer [entangle]])`.
 
