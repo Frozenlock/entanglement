@@ -37,7 +37,10 @@ your program.
 Usage
 -----
 
-Add [![Clojars Project](http://clojars.org/org.clojars.frozenlock/entanglement/latest-version.svg)](http://clojars.org/org.clojars.frozenlock/entanglement) to your `:dependencies` in `project.clj`.
+Add this to your project dependencies:
+
+[![Clojars Project](http://clojars.org/org.clojars.frozenlock/entanglement/latest-version.svg)](http://clojars.org/org.clojars.frozenlock/entanglement)
+
 
 In your namespace declaration: `(:require [entanglement.core :refer [entangle]])`.
 
