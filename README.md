@@ -1,7 +1,7 @@
 Entanglement
 ==============
 
-> "Spooky action at a distance"
+> "Spooky action at a distance" -Einstein
 
 What if an atom could take its values from another atom?
 
@@ -66,6 +66,66 @@ To re-create `atom-a` and `atom-b` from the example above:
                         (assert (-> new-value first string?) "First value should be a string")
                         (assert (-> new-value last number?) "Second value should be a number"))))
 ```						
+
+Rationale
+-------
+
+An atom is a nice state abstraction. You have this 'thing' that holds
+data and with which you must thread carefully. It has a limited set of
+functions to play with it (`deref`,`reset!`, `swap!`,
+`add-watch`/`remove-watch`). Simple, yet functional.
+
+The problem is that the atom does not necessarily match the simplest
+code architecture.
+
+If you build your code to reflect how the data is stored in the atom,
+you are adding complexity. The more detached the atom structure is
+from the code logic, the more you have to juggle the data around. It
+also means that your code becomes intertwined with this particular
+atom.
+
+Before you know it, your entire code base is dependant on one or more
+atoms having a particular structure. So long for reusable functions.
+
+`Entanglement` proproses to create atoms from other atoms and linking
+the data together. It lets you build an 'interface' that presents
+the data like you want it. Build your code in the simplest way
+possible, assuming the atom will match what you want.
+
+```clj
+;; what was...
+(swap! my-atom update-in [:some :path :that :might :be :quite :deep] my-fn)
+
+;; ...can now become
+
+(swap! my-atom my-fn)
+```
+
+"Wait, this looks a lot like cursors?"
+
+Right, because it is! In fact, cursors are a subset of entangled atoms.
+Here is an implement of cursors with `entanglement`:
+```clj
+(defn cursor
+  "Create a cursor. Behaves like a normal atom for the value at the
+  specified path."
+  [a path]  
+  (if-not (seq path) ;; if the path is emtpy, just return the atom...
+    a
+    (entangle a
+              #(get-in % path)
+              #(assoc-in %1 path %2))))
+```
+			  
+(Cursors are such a common case that we already provide the `cursor`
+function in `entanglement.core`.)
+
+Cursors, lenses, wraps... they are all symptomatic of the need to
+detach atom data structure from the code.
+
+Every atom made with `entanglement` is 100% opaque. From the functions
+point of view, it's just like any other atom.
+
 
 License
 -------

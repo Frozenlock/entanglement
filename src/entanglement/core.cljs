@@ -20,12 +20,15 @@
   IMeta
   (-meta [_] meta)
 
+
   
   ;; Every watch is added to the source atom. This way, every time a
   ;; source atom is modified, it will ripple thought all the entangled
   ;; children.
 
-  ;; Might cause memory leaks?
+  ;; Might cause memory leaks? (If we add-watch an entangled atom, it is
+  ;; now referenced in the source atom, meaning it shouldn't be
+  ;; GCed...)
    IWatchable
   (-add-watch [this key f]
     (add-watch source-atom [this key]
@@ -81,6 +84,9 @@
   (-hash [this] (goog/getUid this)))
 
 
+
+;;;;; Main API
+
 (defn entangle
   "Return an atom which applies custom getter and setter to the
   source-atom for every lookup/update/watches.
@@ -97,9 +103,9 @@
   The validator and meta arguments act the same way as for normal
   atoms.
 
-  A 'read-only' atom can be created simply by passing nil as the
-  setter argument. Any attempt to modify directly the returned atom
-  will result in an error."
+  A 'read-only' atom can be created simply by omitting or passing nil
+  as the setter argument. Any attempt to modify directly the returned
+  atom will result in an error."
   ([source-atom getter] (entangle source-atom getter nil))
   ([source-atom getter setter & {:keys [meta validator derefer]}]
    (assert (satisfies? IAtom source-atom) "Only atoms can be entangled.")
