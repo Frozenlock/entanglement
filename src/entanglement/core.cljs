@@ -20,7 +20,10 @@
   IMeta
   (-meta [_] meta)
 
-
+  IWithMeta
+  (-with-meta [o meta]
+    (Entangled. source-atom meta validator watches
+                getter setter derefer))
   
   ;; Every watch is added to the source atom. This way, every time a
   ;; source atom is modified, it will ripple thought all the entangled

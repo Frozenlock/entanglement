@@ -1,4 +1,4 @@
-(defproject org.clojars.frozenlock/entanglement "0.0.2"
+(defproject org.clojars.frozenlock/entanglement "0.0.3"
   :description "Spooky action at a distance (between atoms)"
   :url "https://github.com/Frozenlock/entanglement"
   :license {:name "Eclipse Public License"
