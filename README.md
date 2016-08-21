@@ -114,7 +114,8 @@ Here is an implement of cursors with `entanglement`:
     a
     (entangle a
               #(get-in % path)
-              #(assoc-in %1 path %2))))
+              #(assoc-in %1 path %2)
+              :identifier [::cursor a path])))
 ```
 			  
 (Cursors are such a common case that we already provide the `cursor`
@@ -125,6 +126,15 @@ detach atom data structure from the code.
 
 Every atom made with `entanglement` is 100% opaque. From the functions
 point of view, it's just like any other atom.
+
+
+Warning
+-------
+
+Watches are not added to entangled atoms, but rather to the source
+atoms. This means that one should be careful when adding watches
+because *they won't be automatically GCed* even if the entangled atoms
+are.
 
 
 License

@@ -1,7 +1,7 @@
 (ns entanglement.core)
 
 (deftype Entangled [source-atom meta validator watches
-                    getter setter derefer]
+                    getter setter derefer identifier]
   Object
   (equiv [this other]
     (-equiv this other))
@@ -9,7 +9,11 @@
   IAtom
 
   IEquiv
-  (-equiv [o other] (identical? o other))
+  (-equiv [this other]
+    (and (instance? Entangled other)
+         (or (= identifier (.-identifier other))
+             (= identical? this other))
+         (= source-atom (.-source-atom other))))
 
   IDeref
   (-deref [this]
@@ -23,7 +27,7 @@
   IWithMeta
   (-with-meta [o meta]
     (Entangled. source-atom meta validator watches
-                getter setter derefer))
+                getter setter derefer identifier))
   
   ;; Every watch is added to the source atom. This way, every time a
   ;; source atom is modified, it will ripple thought all the entangled
@@ -34,23 +38,19 @@
   ;; GCed...)
    IWatchable
   (-add-watch [this key f]
-    (add-watch source-atom [this key]
+    (add-watch source-atom [(or identifier this) key]
                (fn [_ _ oldval newval]
                  (when-not (= oldval newval) ;; the getter fn can be
                                              ;; expensive, better to
                                              ;; avoid it if we can.
                    (let [old (getter oldval)
                          new (getter newval)]
-                     ;; We don't test for new equality here because
-                     ;; any watch function can be called even if
-                     ;; oldval and newval are identical. As per
-                     ;; 'add-watch' doc: 'Whenever the reference's
-                     ;; state *might* have been changed (...)'.
-                     (f key this old new)))))
+                     (when-not (= old new)
+                       (f key this old new))))))
                this)
   
   (-remove-watch [this key]
-    (remove-watch source-atom [this key])
+    (remove-watch source-atom [(or identifier this) key])
     this)
 
 
@@ -98,6 +98,8 @@
   setter [optional]:   (fn [derefed-source-atom new-value]...)
 
   derefer [optional]:  (fn [this(new-atom) source-atom getter] ....)
+
+  identifier [optional]: :some-id -- more info below
   
   When creating delicate entanglement (when the datastructure between
   the source atom and the new atom are quite different), it is
@@ -108,11 +110,18 @@
 
   A 'read-only' atom can be created simply by omitting or passing nil
   as the setter argument. Any attempt to modify directly the returned
-  atom will result in an error."
+  atom will result in an error.
+  
+  Because we can't test for equality between functions (getter and
+  setter), basic entangled atoms can't test for equality. This is
+  especially important when adding watches, as they need to test for
+  equality for potential duplicates. To avoid this problem, it's
+  possible to provide a 'identifier' field which contains the object
+  on which the equality should be tested."
   ([source-atom getter] (entangle source-atom getter nil))
-  ([source-atom getter setter & {:keys [meta validator derefer]}]
+  ([source-atom getter setter & {:keys [meta validator derefer identifier]}]
    (assert (satisfies? IAtom source-atom) "Only atoms can be entangled.")
-   (Entangled. source-atom meta validator nil getter setter derefer)))
+   (Entangled. source-atom meta validator nil getter setter derefer identifier)))
 
 
 ;;; Simple cursor implementation using entanglement
@@ -125,5 +134,6 @@
     a
     (entangle a
               #(get-in % path)
-              #(assoc-in %1 path %2))))
+              #(assoc-in %1 path %2)
+              :identifier [::cursor a path]))) ;; <- identifier to test for equality
 
