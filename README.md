@@ -55,7 +55,7 @@ To re-create `atom-a` and `atom-b` from the example above:
                       ;; getter function
                       (fn [s-a]
                         [(:first-name s-a) (:age s-a)])
-                      ;; setter function
+                      ;; optional setter function
                       (fn [s-a new-value]
                         (assoc s-a
                           :first-name (first new-value)
@@ -64,7 +64,10 @@ To re-create `atom-a` and `atom-b` from the example above:
                       :validator
                       (fn [new-value]
                         (assert (-> new-value first string?) "First value should be a string")
-                        (assert (-> new-value last number?) "Second value should be a number"))))
+                        (assert (-> new-value last number?) "Second value should be a number"))
+					  ;;optional identifier to avoid duplicate watches (see docstring)
+					  :identifier
+					  :my-entangled-atom))
 ```						
 
 Rationale
